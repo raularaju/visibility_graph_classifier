@@ -1,5 +1,6 @@
 *.hdf5
 *.csv
+!stratified_sample.csv
 myenv/
 __pycache__/
 ```
