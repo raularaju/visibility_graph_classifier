@@ -3,4 +3,5 @@
 !stratified_sample.csv
 myenv/
 __pycache__/
+*.txt
 ```

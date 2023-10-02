@@ -4,6 +4,7 @@ from scipy.sparse import coo_matrix, csr_matrix
 from scipy.sparse.csgraph import connected_components
 from scipy.sparse.csgraph import floyd_warshall
 from karateclub.node_embedding.neighbourhood.deepwalk import DeepWalk
+import grakel
 import networkx as nx
 import csv
 # Open the HDF5 file
@@ -29,50 +30,54 @@ def read_hdf5(arquivo):
                         num_edges = adjacency_matrix_coo.nnz
                         graph_density = num_edges / (num_nodes * (num_nodes - 1))
                         average_node_degree = adjacency_matrix_coo.sum() / num_nodes
-                        
+
+                        print("degree centrality")
                         degree_centrality_nodes = nx.degree_centrality(G)
                         average_degree_centrality = compute_average_feature(degree_centrality_nodes)
-                        print("pau")
                         
-                        """ betweenness_centrality_nodes = nx.betweenness_centrality(G)
+                        print("betweenness centrality")
+                        betweenness_centrality_nodes = nx.betweenness_centrality(G)
                         average_betweenness_centrality = compute_average_feature(betweenness_centrality_nodes)
-                        print("pau")
                         
+                        print("closeness centrality")
                         closeness_centrality_nodes = nx.closeness_centrality(G)
                         average_closeness_centrality = compute_average_feature(closeness_centrality_nodes)
-                        print("pau")
-                        
+
+                        print("current flow closeness") 
                         current_flow_closeness_centrality_nodes = nx.current_flow_closeness_centrality(G)
                         average_current_flow_closeness_centrality = compute_average_feature(current_flow_closeness_centrality_nodes)
-                        print("pau")
 
+                        print("current flow betweenness") 
                         current_flow_betweenness_centrality_nodes = nx.current_flow_betweenness_centrality(G)
                         average_current_flow_betweenness_centrality = nx.current_flow_betweenness_centrality(G)
-                        print("pau") 
 
+
+
+                        print("load centrality")
                         load_centrality_nodes = nx.load_centrality(G)
                         average_load_centrality = compute_average_feature(load_centrality_nodes)
-                        print("pau")
 
+
+                        print("centralidade harmônica")
                         harmonic_centrality_nodes = nx.harmonic_centrality(G)
                         average_harmonic_centrality = compute_average_feature(harmonic_centrality_nodes)
-                        print("pau")
 
+
+                        print("centralidade de percolação")
                         percolation_centrality_nodes = nx.percolation_centrality(G)
                         average_percolation_centrality = compute_average_feature(percolation_centrality_nodes)
-                        print("pau")"""
 
+                        print("second order centrality")
                         second_order_centrality_nodes = nx.second_order_centrality(G)
                         average_second_order_centrality = compute_average_feature(second_order_centrality_nodes)
-                        print("pau")
 
+                        print("laplacian centrality")
                         laplacian_centrality_nodes = nx.laplacian_centrality(G)
                         average_laplacian_centrality = compute_average_feature(laplacian_centrality_nodes)
-                        print("pau")
-
+                        
+                        print("triangle count")
                         triangle_count_nodes = nx.triangles(G)
                         sum_triangle_count = compute_sum_feature(triangle_count_nodes)/3
-                        print("pau")
 
                         average_clustering_coef = nx.average_clustering(G)
                         csv_writer.writerow([num_edges, graph_density, average_node_degree, average_degree_centrality, average_eigen_centrality, sum_triangle_count, average_clustering_coef, average_clustering_coef ])

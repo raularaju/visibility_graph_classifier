@@ -7,5 +7,5 @@ import csv
 with open(nome_csv, mode='w', newline='') as arquivo_csv:
     csv_writer = csv.writer(arquivo_csv)
     csv_writer.writerow(['num_edges', 'density', 'avg_node_degree', 'connected_components_count', 'graph_diameter']) """
-read_hdf5('./saida.hdf5')
+read_hdf5('./visibility_graphs.hdf5')
 
