@@ -3,7 +3,6 @@ import numpy as np
 from scipy.sparse import coo_matrix, csr_matrix
 from scipy.sparse.csgraph import connected_components
 from scipy.sparse.csgraph import floyd_warshall
-from karateclub.node_embedding.neighbourhood.deepwalk import DeepWalk
 import grakel as gk
 import networkx as nx
 import csv
