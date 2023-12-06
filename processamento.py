@@ -3,32 +3,40 @@ import numpy as np
 from scipy.sparse import coo_matrix, csr_matrix
 from scipy.sparse.csgraph import connected_components
 from scipy.sparse.csgraph import floyd_warshall
-import grakel as gk
 import networkx as nx
+from igraph import Graph, plot
 import csv
 # Open the HDF5 file
 def read_hdf5(arquivo):
-    nome_csv = 'features_grafos.csv'
+    nome_csv = 'features_grafos_1089242.csv'
     with open(nome_csv, mode='w', newline='') as arquivo_csv:
         csv_writer = csv.writer(arquivo_csv)
-        csv_writer.writerow(["exam_id"
+        
+        string_motif_3 = [f"motif_3_{i}" for i in range(4)]
+        string_motif_4 = [f"motif_4_{i}" for i in range(11)]
+        string_motif_5 = [f"motif_5_{i}" for i in range(34)]
+        csv_writer.writerow(["exam_id", "lead"
                             "num_edges", "density", "avg_node_degree", "avg_degree_centrality", 
                              "avg_closeness_centrality", "avg_curr_flow_closeness_centrality", 
-                             "avg_harmonic_centrality", "avg_pagerank", "avg_clustering_coef", 
-                             "count_graphlet_size_3", "count_graphlet_size_4", "count_graphlet_size_5"])
+                             "avg_pagerank", "avg_clustering_coef"] +
+                             string_motif_3 + string_motif_4 + string_motif_5)
         with h5py.File(arquivo, 'r') as f:
-            # Iterate through top-level groups
-            for exam_id, top_group in f.items():
+    # Iterate through top-level groups and their indices
+            for index, (exam_id, top_group) in enumerate(f.items()):
                 print(f'Top-Level Group: {exam_id}')
-                
+                if exam_id != 'exame 1089242':
+                    continue
                 # Iterate through subgroups within the top-level group
                 for subgroup_name, subgroup in top_group.items():
+                    if(subgroup_name != "lead 0"):
+                        continue
                     print(f'\tSubgroup: {subgroup_name}')
                     if 'grafo' in subgroup:
                         grafo_group = subgroup['grafo']
                         adjacency_matrix_coo = coo_matrix((grafo_group['data'][()], (grafo_group['row'][()], grafo_group['col'][()])))
                         G_nx = nx.from_scipy_sparse_array(adjacency_matrix_coo)
-                      
+                        G_igraph = Graph.TupleList(zip(grafo_group['row'][()], grafo_group['col'][()]), directed=False)
+
                         num_nodes = adjacency_matrix_coo.shape[0]
                         num_edges = adjacency_matrix_coo.nnz
                         density = num_edges / (num_nodes * (num_nodes - 1))
@@ -61,9 +69,9 @@ def read_hdf5(arquivo):
                         avg_load_centrality = compute_avg_feature(load_centrality_nodes) """
 
 
-                        print("centralidade harmônica")
+                        """ print("centralidade harmônica")
                         harmonic_centrality_nodes = nx.harmonic_centrality(G_nx)
-                        avg_harmonic_centrality = compute_avg_feature(harmonic_centrality_nodes)
+                        avg_harmonic_centrality = compute_avg_feature(harmonic_centrality_nodes) """
 
                         
 
@@ -82,27 +90,37 @@ def read_hdf5(arquivo):
                         print("clutering médio")
                         avg_clustering_coef = nx.average_clustering(G_nx)
                         
-                        G = list(gk.graph_from_networkx([G_nx]))
-                        print("graphlet size 3")
-                        count_graphlet_size_3 = gk.GraphletSampling(k=3).fit_transform(G)[0][0]
 
-                        print("graphlet size 4")
-                        count_graphlet_size_4 = gk.GraphletSampling(k=4).fit_transform(G)[0][0]
+                        print("motifs size 3")
+                        #count_motif_size_3 =  G_igraph.motifs_randesu(3, [0.5, 0.5, 0.5])
+                        count_motif_size_3 =  G_igraph.motifs_randesu(3)
+                        change_nan_to_zero(count_motif_size_3)
 
-                        print("graphlet size 5")
-                        count_graphlet_size_5 = gk.GraphletSampling(k=5).fit_transform(G)[0][0]
+                        print("motifs size 4")
+                        count_motif_size_4 = G_igraph.motifs_randesu(4, [0.06, 0.12, 0.25, 0.5])
+                        #count_motif_size_4 =  G_igraph.motifs_randesu(4)
+                        change_nan_to_zero(count_motif_size_4)
+
+                        print("motifs size 5")
+                        count_motif_size_5 = G_igraph.motifs_randesu(5, [0.3, 0.3, 0.3, 0.3, 0.3])
+                        #count_motif_size_5 =  G_igraph.motifs_randesu(5)
+                        change_nan_to_zero(count_motif_size_5)
 
 
-                        avg_clustering_coef = nx.avg_clustering(G_nx)
-                        csv_writer.writerow([exam_id , num_edges, density, avg_node_degree, avg_degree_centrality, 
+                        csv_writer.writerow([exam_id ,subgroup_name , num_edges, density, avg_node_degree, avg_degree_centrality, 
                                              avg_closeness_centrality, avg_curr_flow_closeness_centrality, 
-                                             avg_harmonic_centrality, avg_pagerank, avg_clustering_coef, 
-                                             count_graphlet_size_3, count_graphlet_size_4,count_graphlet_size_5])
-                        
-                        
+                                             avg_pagerank, avg_clustering_coef] + 
+                                             count_motif_size_3 + count_motif_size_4 + count_motif_size_5)
+                if exam_id == 'exame 1089242':
+                    break        
+                    
 def compute_avg_feature(feature_nodes):
     return sum(feat for nodes, feat in feature_nodes.items()) / len(feature_nodes)
 def compute_sum_feature(feature_nodes):
     return(sum(feat for nodes, feat in feature_nodes.items()))               
 def compute_features(G_nx):
     pass
+def change_nan_to_zero(arr):   
+    for i in range(len(arr)):
+        if isinstance(arr[i], float) and np.isnan(arr[i]):
+            arr[i] = 0
