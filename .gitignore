@@ -1,7 +1,7 @@
 *.hdf5
 *.csv
 !stratified_sample.csv
-!features_frafos.csv
+!features_grafos.csv
 myenv/
 __pycache__/
 *.txt
